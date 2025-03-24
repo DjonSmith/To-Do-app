@@ -1,73 +1,73 @@
-#  Our To-Do tool from scratch
-# # Essential functions
-# - [x] Add task
-# - [x] Delete task
-# - [x] Mark task as done/undone
-# - [x] Edit task
-# - [x] Change task order
-# # Advanced functions
-# - [ ] Create tasklist file
-# - [ ] Open tasklist file
-# - [ ] Delete tasklist file
-# - [ ] Change tasklist file
-
-
 import os
 import time
 
 
 tasklist = []
-complist = []
+
+class Task:
+    def __init__(self, description, status="undone"):
+        self.description = description
+        self.status = status
 
 
 def clear_screen():
-    os.system('cls' if os.name == 'nt'else 'clear')
+    try:
+        os.system('cls' if os.name == 'nt' else 'clear')
+    except Exception:
+        pass
 
 
 def add_task():
-    tasklist.append(input("Enter task: "))
-    complist.append("undone")
+    desc = input("Enter task: ")
+    tasklist.append(Task(desc))
 
 
 def del_task():
-    user_del_input = int(input("Which task I should delete? "))-1
-    if 0 <= user_del_input < len(tasklist):
-        tasklist.pop(user_del_input)
-        complist.pop(user_del_input)
-    else:
+    try:
+        user_del_input = int(input("Which task should I delete? ")) - 1
+        if 0 <= user_del_input < len(tasklist):
+            tasklist.pop(user_del_input)
+        else:
+            raise ValueError
+    except ValueError:
         print("Invalid input!")
         time.sleep(2)
 
 
 def mark_task():
-    user_input = int(input("Which task should I mark? "))-1
-    if 0 <= user_input < len(complist):
-        if complist[user_input] == "done":
-            complist[user_input] = "undone"
-        elif complist[user_input] == "undone":
-            complist[user_input] = "done"
-    else:
-            print("Invalid input!")
-            time.sleep(2)
-
-
-def edit_task():
-    edit_input = int(input("Which task should I edit? "))-1
-    if 0 <= edit_input < len(tasklist):
-        print(tasklist[edit_input])
-        tasklist[edit_input] = str(input("Enter an updated task: "))
-    else:
+    try:
+        user_input = int(input("Which task should I mark? ")) - 1
+        if 0 <= user_input < len(tasklist):
+            tasklist[user_input].status = "done" if tasklist[user_input].status == "undone" else "undone"
+        else:
+            raise ValueError
+    except ValueError:
         print("Invalid input!")
         time.sleep(2)
 
+
+def edit_task():
+    try:
+        edit_input = int(input("Which task should I edit? ")) - 1
+        if 0 <= edit_input < len(tasklist):
+            print(f"Current task: {tasklist[edit_input].description}")
+            tasklist[edit_input].description = input("Enter an updated task: ")
+        else:
+            raise ValueError
+    except ValueError:
+        print("Invalid input!")
+        time.sleep(2)
+
+
 def change_order():
-    what_to_move = int(input("Which task should I move? "))-1
-    where_to_move = int(input("Where should I move the task? "))-1
-    if 0 <= what_to_move < len(tasklist) and 0 <= where_to_move < len(tasklist):
-        element = tasklist.pop(what_to_move)
-        new_position = where_to_move
-        tasklist.insert(new_position, element)
-    else:
+    try:
+        what_to_move = int(input("Which task should I move? ")) - 1
+        where_to_move = int(input("Where should I move the task? ")) - 1
+        if 0 <= what_to_move < len(tasklist) and 0 <= where_to_move < len(tasklist):
+            tasklist.insert(where_to_move, tasklist.pop(what_to_move))
+        else:
+            raise ValueError
+    except ValueError:
         print("Invalid input!")
         time.sleep(2)
 
@@ -76,12 +76,10 @@ def main():
     while True:
         clear_screen()
         print("Task List:")
-        for x in tasklist:
-            list_index = int(tasklist.index(x))+1
-            if complist[list_index-1] == "undone":
-                print((list_index), x, sep=" | ")
-            else:
-                print(str(list_index), '\u0336'+'\u0336'.join(x), sep=" | ") 
+        for index, task in enumerate(tasklist, start=1):
+            status_symbol = '\u0336' + '\u0336'.join(task.description) if task.status == "done" else task.description
+            print(f"{index} | {status_symbol}")
+        
         print("\na - add new task\n" 
               "m - mark done/undone\n"
               "d - delete task\n" 
@@ -104,10 +102,10 @@ def main():
                 print("Goodbye!")
                 time.sleep(2)
                 clear_screen()
-                exit()
+                break
             case _:
                 print("Invalid input")
                 time.sleep(2)
 
-
-main()
+if __name__ == "__main__":
+    main()
